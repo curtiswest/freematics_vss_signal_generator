@@ -1,0 +1,222 @@
+#ifndef CONFIG_H_INCLUDED
+#define CONFIG_H_INCLUDED
+
+#ifdef CONFIG_ENABLE_OBD
+#define ENABLE_OBD CONFIG_ENABLE_OBD
+#endif
+#ifdef CONFIG_ENABLE_MEMS
+#define ENABLE_MEMS CONFIG_ENABLE_MEMS
+#endif
+#ifdef CONFIG_GNSS
+#define GNSS CONFIG_GNSS
+#endif
+#ifdef CONFIG_STORAGE
+#define STORAGE CONFIG_STORAGE
+#endif
+#if CONFIG_BOARD_HAS_PSRAM
+#define BOARD_HAS_PSRAM CONFIG_BOARD_HAS_PSRAM
+#endif
+#ifdef CONFIG_ENABLE_WIFI
+#define ENABLE_WIFI CONFIG_ENABLE_WIFI
+#define WIFI_SSID CONFIG_WIFI_SSID
+#define WIFI_PASSWORD CONFIG_WIFI_PASSWORD
+#endif
+#ifdef CONFIG_ENABLE_BLE
+#define ENABLE_BLE CONFIG_ENABLE_BLE
+#endif
+#ifdef CONFIG_ENABLE_HTTPD
+#define ENABLE_HTTPD CONFIG_ENABLE_HTTPD
+#endif
+#ifdef CONFIG_SERVER_HOST
+#define SERVER_HOST CONFIG_SERVER_HOST
+#define SERVER_PORT CONFIG_SERVER_PORT
+#define SERVER_PROTOCOL CONFIG_SERVER_PROTOCOL
+#endif
+#ifdef CONFIG_CELL_APN
+#define CELL_APN CONFIG_CELL_APN
+#endif
+
+/**************************************
+* Circular Buffer Configuration
+**************************************/
+#ifdef BOARD_HAS_PSRAM
+#define BUFFER_SLOTS 1024 /* max number of buffer */
+#define BUFFER_LENGTH 384 /* bytes per slot */
+#define SERIALIZE_BUFFER_SIZE 4096 /* bytes */
+#define HAS_LARGE_RAM 1
+#else
+#define BUFFER_SLOTS 32 /* max number of buffer */
+#define BUFFER_LENGTH 256 /* bytes per slot */
+#define SERIALIZE_BUFFER_SIZE 1024 /* bytes */
+#define HAS_LARGE_RAM 0
+#endif
+
+/**************************************
+* Configuration Definitions
+**************************************/
+#define STORAGE_NONE 0
+#define STORAGE_SPIFFS 1
+#define STORAGE_SD 2
+
+#define GNSS_NONE 0
+#define GNSS_INTERNAL 1
+#define GNSS_EXTERNAL 2
+#define GNSS_CELLULAR 3
+
+#define PROTOCOL_UDP 1
+#define PROTOCOL_HTTP 2
+#define PROTOCOL_HTTPS 3
+
+#define PROTOCOL_METHOD_GET 0
+#define PROTOCOL_METHOD_POST 1
+
+/**************************************
+* OBD-II configurations
+**************************************/
+#ifndef ENABLE_OBD
+#define ENABLE_OBD 1
+#endif
+
+// maximum consecutive OBD access errors before entering standby
+#define MAX_OBD_ERRORS 3
+
+/**************************************
+* Networking configurations
+**************************************/
+#ifndef ENABLE_WIFI
+#define ENABLE_WIFI 0
+// WiFi settings
+#define WIFI_SSID "FREEMATICS"
+#define WIFI_PASSWORD "PASSWORD"
+#endif 
+
+#ifndef SERVER_HOST
+// cellular network settings
+#define CELL_APN ""
+// Freematics Hub server settings
+#define SERVER_HOST "hub.freematics.com"
+#define SERVER_PROTOCOL PROTOCOL_UDP
+#endif
+
+// SIM card setting
+#define SIM_CARD_PIN ""
+
+// HTTPS settings
+#define SERVER_METHOD PROTOCOL_METHOD_POST
+#define SERVER_PATH "/hub/api"
+
+#if !SERVER_PORT
+#undef SERVER_PORT
+#if SERVER_PROTOCOL == PROTOCOL_UDP
+#define SERVER_PORT 8081
+#elif SERVER_PROTOCOL == PROTOCOL_HTTP
+#define SERVER_PORT 80
+#elif SERVER_PROTOCOL == PROTOCOL_HTTPS
+#define SERVER_PORT 443
+#endif
+#endif
+
+// WiFi Mesh settings
+#define WIFI_MESH_ID "123456"
+#define WIFI_MESH_CHANNEL 13
+
+// WiFi AP settings
+#define WIFI_AP_SSID "TELELOGGER"
+#define WIFI_AP_PASSWORD "PASSWORD"
+
+// maximum consecutive communication errors before resetting network
+#define MAX_CONN_ERRORS_RECONNECT 5
+// maximum allowed connecting time
+#define MAX_CONN_TIME 10000 /* ms */
+// data receiving timeout
+#define DATA_RECEIVING_TIMEOUT 5000 /* ms */
+// expected maximum server sync signal interval
+#define SERVER_SYNC_INTERVAL 120 /* seconds, 0 to disable */
+// data interval settings
+#define STATIONARY_TIME_TABLE {30, 60, 180} /* seconds */
+#define DATA_INTERVAL_TABLE {1000, 2000, 5000} /* ms */
+#define PING_BACK_INTERVAL 900 /* seconds */
+#define SIGNAL_CHECK_INTERVAL 10 /* seconds */
+
+/**************************************
+* Data storage configurations
+**************************************/
+#ifndef STORAGE
+// change the following line to change storage type
+#define STORAGE STORAGE_SD
+#endif
+
+/**************************************
+* MEMS sensors
+**************************************/
+#ifndef ENABLE_MEMS
+#define ENABLE_MEMS 1
+#endif
+
+/**************************************
+* GPS
+**************************************/
+#ifndef GNSS
+// change the following line to change GNSS setting
+#define GNSS GNSS_INTERNAL
+#endif
+// keeping GNSS power on during standby 
+#define GNSS_ALWAYS_ON 0
+
+/**************************************
+* Standby/wakeup
+**************************************/
+// motion threshold for waking up
+#define MOTION_THRESHOLD 0.4f /* moving vehicle motion threshold in G */
+// engine jumpstart voltage for waking up (when MEMS unavailable) 
+#define JUMPSTART_VOLTAGE 14 /* V */
+// reset device after waking up
+#define RESET_AFTER_WAKEUP 1
+
+/**************************************
+* Additional features
+**************************************/
+#define CONFIG_MODE_TIMEOUT 0
+
+#define PIN_SENSOR1 34
+#define PIN_SENSOR2 26
+
+#define COOLING_DOWN_TEMP 75 /* celsius degrees */
+
+// enable(1)/disable(0) http server
+#ifndef ENABLE_HTTPD
+#define ENABLE_HTTPD 0
+#endif
+
+// enable(1)/disable(0) BLE SPP server (for Freematics Controller App).
+#ifndef ENABLE_BLE
+#define ENABLE_BLE 0
+#endif
+
+
+#endif // CONFIG_H_INCLUDED
+
+/**************************************
+* VSS replacement setup
+**************************************/
+#define PIN_OUTPUT 26
+
+// output configuration relating to car signal expectations
+#define STATIC_DUTY_CYCLE_PCT 50 // most cars expect 50% duty cycle
+#define MAX_SPEED_KMH 150
+#define PULSES_PER_KM 2500
+#define MAX_FREQUENCY (MAX_SPEED_KMH * PULSES_PER_KM / 3600)
+
+// timer config -- usually don't change this
+#define _LEDC_SPEED_MODE LEDC_LOW_SPEED_MODE
+#define _LEDC_DUTY_RES LEDC_TIMER_1_BIT
+#define _LEDC_TIMER LEDC_TIMER_0
+#define _LEDC_CHANNEL LEDC_CHANNEL_0
+#define MAX_DUTY_CYCLE ((1 << _LEDC_DUTY_RES) - 1)
+#define SET_DUTY_CYCLE MAX_DUTY_CYCLE * STATIC_DUTY_CYCLE_PCT / 100
+
+#define DEBUG_MODE 0
+
+#ifndef DEBUG_MODE
+#define DEBUG_MODE 0
+#endif
